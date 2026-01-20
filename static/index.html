@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Điểm Danh Khuôn Mặt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .status-item {
+            background: var(--bg-card);
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border: 1px solid var(--border);
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .tab-btn {
+            padding: 1rem 2rem;
+            border: none;
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border-radius: 0.75rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+        
+        .tab-btn:hover {
+            background: var(--bg-card-hover);
+        }
+        
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border-radius: 1.5rem;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .card-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .camera-container {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .camera-box {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .video-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 1rem;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+        }
+        
+        #video, #enrollVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+            color: white;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result-box {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .result-card {
+            background: var(--bg-card-hover);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .result-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .result-decision {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .result-decision.accept {
+            color: var(--success);
+        }
+        
+        .result-decision.reject {
+            color: var(--danger);
+        }
+        
+        .result-user {
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .result-reason {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .scores {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .score-item {
+            background: var(--bg-card);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+        }
+        
+        .score-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+        
+        .score-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        
+        .progress-bar .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, #8b5cf6 100%);
+            transition: width 0.3s ease;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        th {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+        }
+        
+        tr:hover {
+            background: var(--bg-card-hover);
+        }
+        
+        .badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+        
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+        
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-card-hover);
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .user-code {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .message {
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .message-success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+        
+        .message-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            header h1 {
+                font-size: 1.75rem;
+            }
+            
+            .status-bar {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .camera-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 Hệ Thống Điểm Danh Khuôn Mặt</h1>
+            <p>Face Recognition Attendance with Anti-Spoofing</p>
+        </header>
+        
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-dot"></div>
+                <span>Hệ thống: <strong>Hoạt động</strong></span>
+            </div>
+            <div class="status-item">
+                <span>Mode: <strong id="currentMode">SERIAL</strong></span>
+            </div>
+            <div class="status-item">
+                <span>Đã đăng ký: <strong id="userCount">0</strong> người</span>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="attendance">📸 Điểm Danh</button>
+            <button class="tab-btn" data-tab="enroll">➕ Đăng Ký</button>
+            <button class="tab-btn" data-tab="users">👥 Danh Sách</button>
+            <button class="tab-btn" data-tab="logs">📋 Lịch Sử</button>
+        </div>
+        
+        <!-- Attendance Tab -->
+        <div id="attendance" class="tab-content active">
+            <div class="card">
+                <div class="card-header">
+                    <h2>📸 Điểm Danh</h2>
+                </div>
+                <div class="card-body">
+                    <div class="camera-container">
+                        <div class="camera-box">
+                            <div class="video-wrapper">
+                                <video id="video" autoplay playsinline></video>
+                                <div class="overlay" id="videoOverlay">Click để bật camera</div>
+                            </div>
+                            <div class="controls">
+                                <button class="btn btn-primary" id="startCameraBtn">📷 Bật Camera</button>
+                                <button class="btn btn-success" id="captureBtn" disabled>✅ Điểm Danh</button>
+                            </div>
+                            <div class="progress-bar" id="captureProgress" style="display: none;">
+                                <div class="progress" id="progressBar"></div>
+                            </div>
+                            <p id="captureStatus" style="margin-top: 0.5rem; color: var(--text-secondary);"></p>
+                        </div>
+                        <div class="result-box">
+                            <div class="result-card" id="resultCard">
+                                <div class="result-icon">👤</div>
+                                <div class="result-decision">Chờ điểm danh</div>
+                                <div class="result-reason">Bấm nút điểm danh để bắt đầu</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Enroll Tab -->
+        <div id="enroll" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>➕ Đăng Ký Người Dùng Mới</h2>
+                </div>
+                <div class="card-body">
+                    <div id="enrollMessage"></div>
+                    <div class="camera-container">
+                        <div class="camera-box">
+                            <div class="form-group">
+                                <label>Họ và tên</label>
+                                <input type="text" id="enrollName" placeholder="Nguyễn Văn A">
+                            </div>
+                            <div class="form-group">
+                                <label>Mã nhân viên/sinh viên</label>
+                                <input type="text" id="enrollCode" placeholder="NV001">
+                            </div>
+                            <div class="video-wrapper">
+                                <video id="enrollVideo" autoplay playsinline></video>
+                                <div class="overlay" id="enrollVideoOverlay">Click để bật camera</div>
+                            </div>
+                            <div class="controls">
+                                <button class="btn btn-primary" id="startEnrollCameraBtn">📷 Bật Camera</button>
+                                <button class="btn btn-success" id="enrollBtn" disabled>✅ Đăng Ký (3 giây)</button>
+                            </div>
+                            <div class="progress-bar" id="enrollProgress" style="display: none;">
+                                <div class="progress" id="enrollProgressBar"></div>
+                            </div>
+                            <p id="enrollStatus" style="margin-top: 0.5rem; color: var(--text-secondary);"></p>
+                        </div>
+                        <div class="result-box">
+                            <div class="result-card" id="enrollResultCard">
+                                <div class="result-icon">📝</div>
+                                <div class="result-decision">Chờ đăng ký</div>
+                                <div class="result-reason">Nhập thông tin và quay video 3 giây</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Users Tab -->
+        <div id="users" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>👥 Người Dùng Đã Đăng Ký</h2>
+                </div>
+                <div class="card-body" id="usersList">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <span>Đang tải...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Logs Tab -->
+        <div id="logs" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>📋 Lịch Sử Điểm Danh</h2>
+                </div>
+                <div class="card-body">
+                    <div style="overflow-x: auto;">
+                        <table id="logsTable">
+                            <thead>
+                                <tr>
+                                    <th>Thời gian</th>
+                                    <th>Họ tên</th>
+                                    <th>Mã</th>
+                                    <th>Kết quả</th>
+                                    <th>Lý do</th>
+                                    <th>FAS Score</th>
+                                    <th>FR Score</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // API base URL
+        const API_URL = '';
+        
+        // State
+        let attendanceStream = null;
+        let enrollStream = null;
+        let isCapturing = false;
+        let isEnrolling = false;
+        
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+                
+                // Load data for tab
+                if (btn.dataset.tab === 'users') loadUsers();
+                if (btn.dataset.tab === 'logs') loadLogs();
+            });
+        });
+        
+        // Initialize
+        async function init() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                document.getElementById('currentMode').textContent = data.mode;
+                document.getElementById('userCount').textContent = data.registered_users;
+            } catch (error) {
+                console.error('Failed to connect to server:', error);
+            }
+        }
+        
+        // Camera for attendance
+        document.getElementById('startCameraBtn').addEventListener('click', async () => {
+            try {
+                attendanceStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 640, height: 480, facingMode: 'user' } 
+                });
+                document.getElementById('video').srcObject = attendanceStream;
+                document.getElementById('videoOverlay').style.display = 'none';
+                document.getElementById('captureBtn').disabled = false;
+                document.getElementById('startCameraBtn').textContent = '⏹️ Tắt Camera';
+            } catch (error) {
+                alert('Không thể truy cập camera: ' + error.message);
+            }
+        });
+        
+        // Camera for enrollment
+        document.getElementById('startEnrollCameraBtn').addEventListener('click', async () => {
+            try {
+                enrollStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 640, height: 480, facingMode: 'user' } 
+                });
+                document.getElementById('enrollVideo').srcObject = enrollStream;
+                document.getElementById('enrollVideoOverlay').style.display = 'none';
+                document.getElementById('enrollBtn').disabled = false;
+                document.getElementById('startEnrollCameraBtn').textContent = '⏹️ Tắt Camera';
+            } catch (error) {
+                alert('Không thể truy cập camera: ' + error.message);
+            }
+        });
+        
+        // Capture frames for attendance
+        document.getElementById('captureBtn').addEventListener('click', async () => {
+            if (isCapturing) return;
+            isCapturing = true;
+            
+            const btn = document.getElementById('captureBtn');
+            btn.disabled = true;
+            
+            const statusEl = document.getElementById('captureStatus');
+            const progressBar = document.getElementById('captureProgress');
+            const progress = document.getElementById('progressBar');
+            
+            progressBar.style.display = 'block';
+            
+            // Capture 10 frames over 1 second
+            const frames = [];
+            const totalFrames = 10;
+            const video = document.getElementById('video');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            
+            for (let i = 0; i < totalFrames; i++) {
+                statusEl.textContent = `Đang thu thập frame ${i + 1}/${totalFrames}...`;
+                progress.style.width = `${((i + 1) / totalFrames) * 50}%`;
+                
+                ctx.drawImage(video, 0, 0);
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+                frames.push(blob);
+                
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            
+            statusEl.textContent = 'Đang xử lý...';
+            progress.style.width = '75%';
+            
+            // Send frames to server
+            const formData = new FormData();
+            frames.forEach((frame, i) => formData.append('images', frame, `frame_${i}.jpg`));
+            
+            try {
+                const response = await fetch(`${API_URL}/api/attendance/frames`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                
+                progress.style.width = '100%';
+                displayResult(result);
+                statusEl.textContent = '';
+                
+            } catch (error) {
+                displayResult({
+                    decision: 'REJECT',
+                    reason: 'ERROR',
+                    timestamp: new Date().toISOString()
+                });
+                statusEl.textContent = 'Lỗi: ' + error.message;
+            }
+            
+            setTimeout(() => {
+                progressBar.style.display = 'none';
+                progress.style.width = '0%';
+            }, 1000);
+            
+            btn.disabled = false;
+            isCapturing = false;
+        });
+        
+        // Display attendance result
+        function displayResult(result) {
+            const card = document.getElementById('resultCard');
+            const isAccept = result.decision === 'ACCEPT';
+            
+            let icon = isAccept ? '✅' : '❌';
+            let userName = result.user_name || 'Không xác định';
+            let userCode = result.user_code || '';
+            
+            if (result.reason === 'SPOOF') icon = '🚫';
+            if (result.reason === 'NO_FACE') icon = '👤';
+            if (result.reason === 'MULTI_FACE') icon = '👥';
+            
+            card.innerHTML = `
+                <div class="result-icon">${icon}</div>
+                <div class="result-decision ${isAccept ? 'accept' : 'reject'}">${result.decision}</div>
+                ${isAccept ? `<div class="result-user">${userName}</div>` : ''}
+                ${userCode ? `<div class="result-reason">${userCode}</div>` : ''}
+                <div class="result-reason">${result.reason}</div>
+                <div class="scores">
+                    ${result.score_fas !== null ? `
+                        <div class="score-item">
+                            <div class="score-label">Anti-Spoof</div>
+                            <div class="score-value">${(result.score_fas * 100).toFixed(1)}%</div>
+                        </div>
+                    ` : ''}
+                    ${result.score_fr !== null ? `
+                        <div class="score-item">
+                            <div class="score-label">Nhận dạng</div>
+                            <div class="score-value">${(result.score_fr * 100).toFixed(1)}%</div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            // Refresh user count
+            init();
+        }
+        
+        // Enrollment
+        document.getElementById('enrollBtn').addEventListener('click', async () => {
+            if (isEnrolling) return;
+            
+            const name = document.getElementById('enrollName').value.trim();
+            const code = document.getElementById('enrollCode').value.trim();
+            
+            if (!name || !code) {
+                showEnrollMessage('Vui lòng nhập đầy đủ thông tin', 'error');
+                return;
+            }
+            
+            isEnrolling = true;
+            const btn = document.getElementById('enrollBtn');
+            btn.disabled = true;
+            
+            const statusEl = document.getElementById('enrollStatus');
+            const progressBar = document.getElementById('enrollProgress');
+            const progress = document.getElementById('enrollProgressBar');
+            
+            progressBar.style.display = 'block';
+            
+            // Capture frames for 3 seconds
+            const frames = [];
+            const totalFrames = 30; // ~10 FPS for 3 seconds
+            const video = document.getElementById('enrollVideo');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            
+            for (let i = 0; i < totalFrames; i++) {
+                statusEl.textContent = `Đang quay video... ${((i + 1) / totalFrames * 3).toFixed(1)}s / 3s`;
+                progress.style.width = `${((i + 1) / totalFrames) * 50}%`;
+                
+                ctx.drawImage(video, 0, 0);
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+                frames.push(blob);
+                
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            
+            statusEl.textContent = 'Đang xử lý...';
+            progress.style.width = '75%';
+            
+            // Send frames to server
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('code', code);
+            frames.forEach((frame, i) => formData.append('images', frame, `frame_${i}.jpg`));
+            
+            try {
+                const response = await fetch(`${API_URL}/api/enroll/frames`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                
+                progress.style.width = '100%';
+                
+                const enrollResultCard = document.getElementById('enrollResultCard');
+                if (result.success) {
+                    enrollResultCard.innerHTML = `
+                        <div class="result-icon">✅</div>
+                        <div class="result-decision accept">ĐĂNG KÝ THÀNH CÔNG</div>
+                        <div class="result-user">${name}</div>
+                        <div class="result-reason">${code}</div>
+                        <div class="scores">
+                            <div class="score-item">
+                                <div class="score-label">Embeddings</div>
+                                <div class="score-value">${result.embeddings_count}</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-label">Valid Frames</div>
+                                <div class="score-value">${result.valid_frames}/${result.frames_processed}</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Clear form
+                    document.getElementById('enrollName').value = '';
+                    document.getElementById('enrollCode').value = '';
+                } else {
+                    enrollResultCard.innerHTML = `
+                        <div class="result-icon">❌</div>
+                        <div class="result-decision reject">ĐĂNG KÝ THẤT BẠI</div>
+                        <div class="result-reason">${result.message}</div>
+                    `;
+                }
+                
+                statusEl.textContent = '';
+                init();
+                
+            } catch (error) {
+                showEnrollMessage('Lỗi: ' + error.message, 'error');
+                statusEl.textContent = '';
+            }
+            
+            setTimeout(() => {
+                progressBar.style.display = 'none';
+                progress.style.width = '0%';
+            }, 1000);
+            
+            btn.disabled = false;
+            isEnrolling = false;
+        });
+        
+        function showEnrollMessage(message, type) {
+            const el = document.getElementById('enrollMessage');
+            el.innerHTML = `<div class="message message-${type}">${message}</div>`;
+            setTimeout(() => el.innerHTML = '', 3000);
+        }
+        
+        // Load users
+        async function loadUsers() {
+            const container = document.getElementById('usersList');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div><span>Đang tải...</span></div>';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/users`);
+                const data = await response.json();
+                
+                if (data.users.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Chưa có người dùng nào được đăng ký</p>';
+                    return;
+                }
+                
+                container.innerHTML = data.users.map(user => `
+                    <div class="user-card">
+                        <div class="user-avatar">${user.name.charAt(0).toUpperCase()}</div>
+                        <div class="user-info">
+                            <div class="user-name">${user.name}</div>
+                            <div class="user-code">${user.code} • ${user.embeddings_count} embeddings</div>
+                        </div>
+                        <button class="btn btn-danger" onclick="deleteUser('${user.user_id}', '${user.name}')">🗑️</button>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                container.innerHTML = `<p style="color: var(--danger);">Lỗi: ${error.message}</p>`;
+            }
+        }
+        
+        async function deleteUser(userId, name) {
+            if (!confirm(`Xóa người dùng "${name}"?`)) return;
+            
+            try {
+                await fetch(`${API_URL}/api/users/${userId}`, { method: 'DELETE' });
+                loadUsers();
+                init();
+            } catch (error) {
+                alert('Lỗi: ' + error.message);
+            }
+        }
+        
+        // Load logs
+        async function loadLogs() {
+            const tbody = document.getElementById('logsBody');
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;"><div class="loading"><div class="spinner"></div><span>Đang tải...</span></div></td></tr>';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/attendance/logs?limit=50`);
+                const data = await response.json();
+                
+                if (data.logs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-secondary);">Chưa có lịch sử điểm danh</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = data.logs.map(log => `
+                    <tr>
+                        <td>${new Date(log.timestamp).toLocaleString('vi-VN')}</td>
+                        <td>${log.user_name || '-'}</td>
+                        <td>${log.user_code || '-'}</td>
+                        <td><span class="badge ${log.decision === 'ACCEPT' ? 'badge-success' : 'badge-danger'}">${log.decision}</span></td>
+                        <td>${log.reason}</td>
+                        <td>${log.score_fas !== null ? (log.score_fas * 100).toFixed(1) + '%' : '-'}</td>
+                        <td>${log.score_fr !== null ? (log.score_fr * 100).toFixed(1) + '%' : '-'}</td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="7" style="color: var(--danger);">Lỗi: ${error.message}</td></tr>`;
+            }
+        }
+        
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
